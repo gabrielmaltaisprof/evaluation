@@ -79,7 +79,7 @@
                 </div>
                 <div>
                     <h1 id="header-course-title" class="text-lg font-bold text-gray-900 leading-tight">Infrastructure Réseau</h1>
-                    <p id="header-task-title" class="text-xs text-gray-500 font-medium uppercase tracking-wide">TP Final - Routage & VLANs</p>
+                    <p id="header-task-title" class="text-xs text-gray-500 font-medium uppercase tracking-wide">TP Final</p>
                 </div>
             </div>
             
@@ -238,11 +238,10 @@
                             <i class="fa-solid fa-upload"></i> Importer JSON
                             <input type="file" class="hidden" accept=".json" onchange="App.importConfig(this)">
                         </label>
-                        <div class="flex-grow"></div>
-                        <button onclick="App.restoreDefaults()" class="text-sm text-orange-500 hover:text-orange-700 flex items-center gap-2" title="Recharger l'exemple Réseau">
-                            <i class="fa-solid fa-rotate-left"></i> Restaurer Défauts
+                        <button onclick="App.resetToDefault()" class="text-sm text-purple-600 hover:text-purple-800 flex items-center gap-2">
+                            <i class="fa-solid fa-rotate-left"></i> Restaurer Défaut
                         </button>
-                        <button onclick="App.clearAllCriteria()" class="text-sm text-red-500 hover:text-red-700 flex items-center gap-2" title="Tout effacer pour commencer à vide">
+                        <button onclick="App.clearAllCriteria()" class="text-sm text-red-500 hover:text-red-700 ml-auto flex items-center gap-2">
                             <i class="fa-solid fa-trash"></i> Vider Tout
                         </button>
                     </div>
@@ -307,66 +306,121 @@
     <!-- ================= JAVASCRIPT LOGIC ================= -->
     <script>
         /**
-         * DEFAULT CONFIGURATION (Network Infrastructure Example)
+         * DEFAULT CONFIGURATION (Nouvelle Grille Admin Système)
          */
         const DEFAULT_CONFIG = {
-            courseTitle: "Infrastructure Réseau",
-            taskTitle: "TP Final : VLANs & Routage Inter-VLAN",
+            courseTitle: "Administration Système & Réseau",
+            taskTitle: "Projet Final : Infrastructure Windows Server",
             apiKey: "",
             criteria: [
                 {
                     id: 'c1',
-                    title: "Adressage IP & Subnetting",
-                    weight: 20,
+                    title: "Présentation & Maîtrise du Sujet",
+                    weight: 10,
                     color: "border-blue-500",
                     levels: [
-                        { label: "Insatisfaisant", maxPct: 0.4, desc: "Erreurs majeures dans le calcul des sous-réseaux. Chevauchements d'adresses." },
-                        { label: "Bon", maxPct: 0.75, desc: "Adressage fonctionnel mais pas optimal. Quelques gaspillages d'IP." },
-                        { label: "Excellent", maxPct: 1, desc: "Plan d'adressage optimal (VLSM), documentation claire et sans erreur." }
+                        { label: "Insatisfaisant", maxPct: 0.5, desc: "L'étudiant éprouve de la difficulté à expliquer son projet. Les choix techniques ne sont pas justifiés ou sont incompris. La vulgarisation est absente." },
+                        { label: "Bon", maxPct: 0.8, desc: "L'étudiant explique correctement le fonctionnement global de son infrastructure. Certaines justifications techniques manquent de précision mais l'ensemble est cohérent." },
+                        { label: "Excellent", maxPct: 1, desc: "Excellente vulgarisation. L'étudiant démontre une maîtrise technique et justifie clairement ses choix d'architecture. La compréhension des éléments évalués est évidente." }
                     ]
                 },
                 {
                     id: 'c2',
-                    title: "Configuration des VLANs",
-                    weight: 25,
+                    title: "Documentation & Plan Réseau",
+                    weight: 10,
                     color: "border-green-500",
                     levels: [
-                        { label: "Insatisfaisant", maxPct: 0.4, desc: "VLANs manquants ou mal assignés aux ports. Pas de séparation logique." },
-                        { label: "Bon", maxPct: 0.75, desc: "VLANs créés correctement. Quelques erreurs sur les ports trunk/access." },
-                        { label: "Excellent", maxPct: 1, desc: "VLANs nommés, trunks natifs sécurisés, attribution parfaite des ports." }
+                        { label: "Insatisfaisant", maxPct: 0.5, desc: "Documentation incomplète ou absente. Le plan réseau (schéma/adressage) ne correspond pas à la réalité configurée ou comporte des erreurs majeures." },
+                        { label: "Bon", maxPct: 0.8, desc: "Documentation présente. Le plan réseau est compréhensible malgré quelques imprécisions mineures. Le contexte de l'entreprise est défini." },
+                        { label: "Excellent", maxPct: 1, desc: "Documentation complète et professionnelle. Le plan réseau est clair, détaillé et correspond parfaitement à l'implémentation. Le contexte est réaliste." }
                     ]
                 },
                 {
                     id: 'c3',
-                    title: "Routage & Connectivité",
-                    weight: 30,
+                    title: "Configuration du Domaine & Serveurs",
+                    weight: 10,
                     color: "border-purple-500",
                     levels: [
-                        { label: "Insatisfaisant", maxPct: 0.4, desc: "Le ping ne passe pas entre les réseaux. Routes manquantes." },
-                        { label: "Bon", maxPct: 0.75, desc: "Connectivité établie. Routage statique fonctionnel." },
-                        { label: "Excellent", maxPct: 1, desc: "Routage dynamique (OSPF/EIGRP) configuré ou Router-on-a-stick parfait." }
+                        { label: "Insatisfaisant", maxPct: 0.5, desc: "Le domaine n'est pas fonctionnel ou présente des erreurs critiques. Un seul contrôleur de domaine est en place (pas de redondance)." },
+                        { label: "Bon", maxPct: 0.8, desc: "Le domaine est fonctionnel. Les serveurs sont installés correctement. La redondance (2 DCs) est en place, même si la configuration avancée peut être basique." },
+                        { label: "Excellent", maxPct: 1, desc: "Domaine sain et redondant. Les deux contrôleurs de domaine répliquent correctement. Les serveurs sont bien configurés et nommés selon une convention logique." }
                     ]
                 },
                 {
                     id: 'c4',
-                    title: "Sécurité & Bonnes Pratiques",
-                    weight: 15,
+                    title: "Structure Active Directory & Objets",
+                    weight: 10,
                     color: "border-orange-500",
                     levels: [
-                        { label: "Insatisfaisant", maxPct: 0.4, desc: "Mots de passe en clair. Telnet activé. Pas de bannières." },
-                        { label: "Bon", maxPct: 0.75, desc: "Service password-encryption activé. SSH configuré." },
-                        { label: "Excellent", maxPct: 1, desc: "Sécurité ports, SSH v2, ACLs de base, bannières conformes." }
+                        { label: "Insatisfaisant", maxPct: 0.5, desc: "Structure d'Unités d'Organisation (OU) inexistante ou illogique. Très peu d'utilisateurs créés, ou création purement manuelle sans méthode." },
+                        { label: "Bon", maxPct: 0.8, desc: "Structure d'OU présente reflétant les départements. Les utilisateurs ont été créés en masse (script ou méthode efficace) et sont classés correctement." },
+                        { label: "Excellent", maxPct: 1, desc: "Structure AD logique et optimisée. Peuplement massif réussi et fonctionnel. Les objets (utilisateurs, groupes, ordinateurs) sont bien classés dans l'arborescence." }
                     ]
                 },
                 {
                     id: 'c5',
-                    title: "Documentation & Schéma",
+                    title: "Services DNS (Interne/Externe)",
                     weight: 10,
                     color: "border-gray-500",
                     levels: [
-                        { label: "Insatisfaisant", maxPct: 0.4, desc: "Schéma absent ou illisible. Pas de tableau d'adressage." },
-                        { label: "Bon", maxPct: 0.75, desc: "Schéma présent. Tableau d'adressage incomplet." },
-                        { label: "Excellent", maxPct: 1, desc: "Schéma topologique professionnel (Draw.io/Visio). Tableau complet." }
+                        { label: "Insatisfaisant", maxPct: 0.5, desc: "La résolution de noms interne ne fonctionne pas. Problèmes d'accès aux ressources par nom." },
+                        { label: "Bon", maxPct: 0.8, desc: "La résolution de noms fonctionne en interne. L'accès vers l'extérieur est possible." },
+                        { label: "Excellent", maxPct: 1, desc: "Service DNS parfaitement configuré. Résolution interne et externe (redirecteurs) fonctionnelle. Zones inversées présentes." }
+                    ]
+                },
+                {
+                    id: 'c6',
+                    title: "Configuration Réseau & Routage",
+                    weight: 10,
+                    color: "border-blue-500",
+                    levels: [
+                        { label: "Insatisfaisant", maxPct: 0.5, desc: "Problèmes de communication entre les machines. Segmentation absente ou inefficace. Pas d'accès Internet (NAT)." },
+                        { label: "Bon", maxPct: 0.8, desc: "Le réseau est fonctionnel. La segmentation est en place. Le routage et le NAT permettent la communication requise." },
+                        { label: "Excellent", maxPct: 1, desc: "Configuration réseau robuste. Segmentation logique respectée. Le routage inter-réseaux et l'accès Internet (NAT) sont fluides et bien configurés." }
+                    ]
+                },
+                {
+                    id: 'c7',
+                    title: "Services DHCP & Disponibilité",
+                    weight: 10,
+                    color: "border-green-500",
+                    levels: [
+                        { label: "Insatisfaisant", maxPct: 0.5, desc: "Service DHCP absent ou mal configuré (conflits, mauvaises options). Pas de redondance." },
+                        { label: "Bon", maxPct: 0.8, desc: "Le DHCP distribue les adresses correctement avec les bonnes options. Un mécanisme de redondance de base est en place." },
+                        { label: "Excellent", maxPct: 1, desc: "Étendues DHCP correctement configurées. La redondance (failover) est fonctionnelle et assure la continuité du service." }
+                    ]
+                },
+                {
+                    id: 'c8',
+                    title: "Accès Distant (VPN)",
+                    weight: 10,
+                    color: "border-purple-500",
+                    levels: [
+                        { label: "Insatisfaisant", maxPct: 0.5, desc: "Le service VPN n'est pas fonctionnel. Impossible de se connecter de l'extérieur." },
+                        { label: "Bon", maxPct: 0.8, desc: "La connexion VPN s'établit. L'accès aux ressources internes est possible." },
+                        { label: "Excellent", maxPct: 1, desc: "Service VPN fonctionnel et stable. Le client accède au réseau interne comme s'il était sur place. Configuration cohérente." }
+                    ]
+                },
+                {
+                    id: 'c9',
+                    title: "Serveur d'Impression & Partages",
+                    weight: 10,
+                    color: "border-orange-500",
+                    levels: [
+                        { label: "Insatisfaisant", maxPct: 0.5, desc: "Aucune gestion centralisée des partages ou des imprimantes. Accès aux fichiers chaotique." },
+                        { label: "Bon", maxPct: 0.8, desc: "Dossiers partagés créés selon les départements. Serveur d'impression installé et fonctionnel." },
+                        { label: "Excellent", maxPct: 1, desc: "Structure de partages logique. Imprimantes déployées et gérées par le serveur. Les permissions sont appliquées correctement (AGDLP respecté)." }
+                    ]
+                },
+                {
+                    id: 'c10',
+                    title: "Clients & Environnement Utilisateur",
+                    weight: 10,
+                    color: "border-gray-500",
+                    levels: [
+                        { label: "Insatisfaisant", maxPct: 0.5, desc: "Les postes clients ne sont pas joints au domaine ou l'environnement utilisateur n'est pas géré." },
+                        { label: "Bon", maxPct: 0.8, desc: "Postes joints au domaine. Des GPO de base (ex: lecteur réseau, fond d'écran) sont appliquées aux utilisateurs." },
+                        { label: "Excellent", maxPct: 1, desc: "Intégration complète des clients. Les GPO configurent efficacement l'environnement (lecteurs, imprimantes, restrictions) selon le contexte de l'utilisateur." }
                     ]
                 }
             ]
@@ -544,7 +598,7 @@
                 document.getElementById('final-score').innerText = displayScore;
                 
                 // Update Progress Bar
-                const pct = (displayScore / totalMax) * 100;
+                const pct = totalMax > 0 ? (displayScore / totalMax) * 100 : 0;
                 const bar = document.getElementById('score-progress-bar');
                 bar.style.width = `${pct}%`;
                 
@@ -785,8 +839,8 @@
                     weight: 10,
                     color: "border-gray-500",
                     levels: [
-                        { label: "Insatisfaisant", maxPct: 0.4, desc: "Description niveau bas." },
-                        { label: "Bon", maxPct: 0.75, desc: "Description niveau moyen." },
+                        { label: "Insatisfaisant", maxPct: 0.5, desc: "Description niveau bas." },
+                        { label: "Bon", maxPct: 0.8, desc: "Description niveau moyen." },
                         { label: "Excellent", maxPct: 1, desc: "Description niveau haut." }
                     ]
                 };
@@ -808,31 +862,17 @@
             },
 
             clearAllCriteria: () => {
-                if(confirm("Attention : Cette action va effacer TOUT le contenu (Titre du cours, Titre du travail, et tous les critères). Êtes-vous sûr de vouloir tout vider ?")) {
-                    // 1. Vider les données de config
+                if(confirm("Tout supprimer ?")) {
                     App.config.criteria = [];
-                    App.config.courseTitle = "";
-                    App.config.taskTitle = "";
-                    
-                    // 2. Mettre à jour les champs du formulaire immédiatement
-                    document.getElementById('conf-course').value = "";
-                    document.getElementById('conf-task').value = "";
-                    
-                    // 3. Rafraîchir la liste (qui sera vide) et le total
                     App.renderCriteriaEditor();
                 }
             },
 
-            restoreDefaults: () => {
-                if(confirm("Remplacer la configuration actuelle par l'exemple par défaut (Infrastructure Réseau) ?")) {
-                    const currentKey = App.config.apiKey; // On garde la clé API
+            // Feature: Reset to DEFAULT_CONFIG manually if local storage is stale
+            resetToDefault: () => {
+                if(confirm("Cela va écraser votre configuration actuelle avec le modèle par défaut (Projet Windows). Continuer ?")) {
                     App.config = JSON.parse(JSON.stringify(DEFAULT_CONFIG));
-                    App.config.apiKey = currentKey;
-                    
-                    // Mise à jour UI
-                    document.getElementById('conf-course').value = App.config.courseTitle;
-                    document.getElementById('conf-task').value = App.config.taskTitle;
-                    App.renderCriteriaEditor();
+                    App.saveSettings();
                 }
             },
 
