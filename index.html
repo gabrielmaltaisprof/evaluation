@@ -756,20 +756,27 @@
                     grid.insertAdjacentHTML('beforeend', row);
                 });
 
-                // Show hidden container, print, hide
+                // Show hidden container temporarily to allow capture
                 template.classList.remove('hidden');
                 
+                // Force layout update (reflow)
+                void template.offsetWidth;
+
                 const opt = {
                     margin: 0.5,
-                    filename: `Evaluation_${App.state.studentName.replace(/\s+/g, '_')}.pdf`,
+                    filename: `Evaluation_${(App.state.studentName || 'Etudiant').replace(/\s+/g, '_')}.pdf`,
                     image: { type: 'jpeg', quality: 0.98 },
-                    html2canvas: { scale: 2 },
+                    // scrollY: 0 prevents blank PDF if user is scrolled down
+                    html2canvas: { scale: 2, scrollY: 0, useCORS: true },
                     jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
                 };
 
-                html2pdf().set(opt).from(content).save().then(() => {
-                    template.classList.add('hidden');
-                });
+                // Add a small timeout to ensure DOM is painted before capture
+                setTimeout(() => {
+                    html2pdf().set(opt).from(content).save().then(() => {
+                        template.classList.add('hidden');
+                    });
+                }, 100);
             },
 
             // --- Settings Modal Logic ---
