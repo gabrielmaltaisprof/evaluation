@@ -230,7 +230,7 @@
                 <!-- Import/Export -->
                 <section class="bg-gray-50 p-4 rounded-lg border border-gray-200">
                     <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-2">Gestion des Données</h3>
-                    <div class="flex gap-4">
+                    <div class="flex flex-wrap gap-4">
                         <button onclick="App.exportConfig()" class="text-sm text-gray-600 hover:text-blue-600 flex items-center gap-2">
                             <i class="fa-solid fa-download"></i> Exporter JSON
                         </button>
@@ -238,7 +238,11 @@
                             <i class="fa-solid fa-upload"></i> Importer JSON
                             <input type="file" class="hidden" accept=".json" onchange="App.importConfig(this)">
                         </label>
-                        <button onclick="App.clearAllCriteria()" class="text-sm text-red-500 hover:text-red-700 ml-auto flex items-center gap-2">
+                        <div class="flex-grow"></div>
+                        <button onclick="App.restoreDefaults()" class="text-sm text-orange-500 hover:text-orange-700 flex items-center gap-2" title="Recharger l'exemple Réseau">
+                            <i class="fa-solid fa-rotate-left"></i> Restaurer Défauts
+                        </button>
+                        <button onclick="App.clearAllCriteria()" class="text-sm text-red-500 hover:text-red-700 flex items-center gap-2" title="Tout effacer pour commencer à vide">
                             <i class="fa-solid fa-trash"></i> Vider Tout
                         </button>
                     </div>
@@ -804,8 +808,30 @@
             },
 
             clearAllCriteria: () => {
-                if(confirm("Tout supprimer ?")) {
+                if(confirm("Attention : Cette action va effacer TOUT le contenu (Titre du cours, Titre du travail, et tous les critères). Êtes-vous sûr de vouloir tout vider ?")) {
+                    // 1. Vider les données de config
                     App.config.criteria = [];
+                    App.config.courseTitle = "";
+                    App.config.taskTitle = "";
+                    
+                    // 2. Mettre à jour les champs du formulaire immédiatement
+                    document.getElementById('conf-course').value = "";
+                    document.getElementById('conf-task').value = "";
+                    
+                    // 3. Rafraîchir la liste (qui sera vide) et le total
+                    App.renderCriteriaEditor();
+                }
+            },
+
+            restoreDefaults: () => {
+                if(confirm("Remplacer la configuration actuelle par l'exemple par défaut (Infrastructure Réseau) ?")) {
+                    const currentKey = App.config.apiKey; // On garde la clé API
+                    App.config = JSON.parse(JSON.stringify(DEFAULT_CONFIG));
+                    App.config.apiKey = currentKey;
+                    
+                    // Mise à jour UI
+                    document.getElementById('conf-course').value = App.config.courseTitle;
+                    document.getElementById('conf-task').value = App.config.taskTitle;
                     App.renderCriteriaEditor();
                 }
             },
