@@ -569,6 +569,8 @@
 
             updateDescription: (id, score) => {
                 const c = App.config.criteria.find(x => x.id === id);
+                if (!c) return; // Prevent crash if config mismatch
+
                 const pct = score / c.weight;
                 let text = "";
                 
@@ -576,7 +578,8 @@
                 else if (pct <= c.levels[1].maxPct) text = c.levels[1].desc;
                 else text = c.levels[2].desc;
 
-                document.getElementById(`desc-${id}`).innerText = text;
+                const descEl = document.getElementById(`desc-${id}`);
+                if(descEl) descEl.innerText = text;
             },
 
             toggleComment: (id) => {
@@ -644,10 +647,14 @@
             },
 
             saveState: () => {
-                App.state.studentName = document.getElementById('student-name').value;
-                App.state.date = document.getElementById('eval-date').value;
-                App.state.generalComment = document.getElementById('general-comments').value;
-                localStorage.setItem('gradeApp_state', JSON.stringify(App.state));
+                try {
+                    App.state.studentName = document.getElementById('student-name').value;
+                    App.state.date = document.getElementById('eval-date').value;
+                    App.state.generalComment = document.getElementById('general-comments').value;
+                    localStorage.setItem('gradeApp_state', JSON.stringify(App.state));
+                } catch(e) {
+                    console.error("Erreur sauvegarde locale", e);
+                }
             },
 
             resetCurrentData: () => {
@@ -657,12 +664,18 @@
                     App.state.generalComment = "";
                     App.state.studentName = "";
                     
-                    document.getElementById('student-name').value = "";
+                    const nameInput = document.getElementById('student-name');
+                    nameInput.value = "";
                     document.getElementById('general-comments').value = "";
                     
-                    App.renderCriteria(); // Re-render to reset sliders and descs
+                    App.renderCriteria(); 
                     App.updateCalculations();
                     App.saveState();
+                    
+                    // Fix: Force focus back to student name to prevent "frozen" feeling
+                    setTimeout(() => {
+                        nameInput.focus();
+                    }, 50);
                 }
             },
 
